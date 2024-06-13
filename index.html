@@ -1,0 +1,239 @@
+<!-- 
+PROJETO: APLICAÇÃO DA TRANSFORMADA RÁPIDA DE FOURIER NO PROCESSAMENTO DE SINAIS
+DE VIBRAÇÃO EM AEROGERADORES DE PEQUENO PORTE E INTEGRAÇÃO COM COMUNICAÇÃO LORA
+AUTOR 1: AIRTON MATHIAS
+AUTOR 2: RAFAEL JUNKES	
+ORIENTADOR: CARLOS EDUARDO VIANA
+PÁGINA HTML
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- METADADOS E TÍTULOS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processamento de sinais de vibração em Aerogeradores de pequeno porte</title>
+    <!-- Inclusão da biblioteca Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* ESTILOS CSS PARA A PÁGINA */
+        body {
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #title-container {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 18px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .plot-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 10px;
+        }
+        .plot {
+            width: 100%;
+            height: 400px; /* Adiciona altura para garantir a renderização dos gráficos */
+        }
+        .academics {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .half-width {
+            width: 50%;
+        }
+        .frequency-container {
+            order: -1;
+        }
+        @media screen and (max-width: 600px) {
+            .plot-container {
+                max-width: 100%;
+            }
+        }
+        #update-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- BLOCO DO TITULO -->
+    <div id="title-container">
+        <h1>PROCESSAMENTO DE SINAIS DE VIBRAÇÃO EM AEROGERADORES DE PEQUENO PORTE</h1>
+        <h2>Centro Universitário Católica de Santa Catarina</h2>
+    </div>
+    
+    <!-- BLOCO DO BOTAO DE ATUALIZACAO -->
+    <div id="update-button-container">
+        <button onclick="updateCharts()">Atualizar Informações</button>
+    </div>
+
+    <!-- BLOCO PRINCIPAL PARA OS GRAFICOS -->
+    <div id="container">
+        <!-- BLOCO DO GRAFICO DO ESPECTRO -->
+        <div class="plot-container frequency-container">
+            <div id="spectrum-plot" class="plot"></div>
+            <h2>Frequência</h2>
+        </div>
+        <!-- BLOCO DO GRAFICO DA TEMPERATURA -->
+        <div class="plot-container half-width">
+            <div id="temperature-gauge-plot" class="plot"></div>
+            <h2>Temperatura</h2>
+        </div>
+        <!-- BLOCO DO GRAFICO DA TEMPERATURA -->
+        <div class="plot-container half-width">
+            <div id="battery-gauge-plot" class="plot"></div>
+            <h2>Bateria</h2>
+        </div>
+    </div>
+
+    <!-- BLOCO NOME DOS ACADEMICOS -->
+    <div class="academics">
+        <p>Acadêmicos: Airton Mathias, Rafael Junkes</p>
+    </div>
+
+    <script>
+        // TENSÃO MÁXIMA DA BATERIA
+        const maxBatteryVoltage = 4200;
+
+        // FUNÇÃO PARA BUSCAR DADOS DO SERVIDOR
+        function fetchData() {
+            return fetch('data.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Organizar dados
+                    const amplitudes = {};
+                    const frequencias = {};
+                    
+                    for (let i = 0; i < 10; i++) {
+                        amplitudes[`va_${i}`] = data[`va_${i}`].map(parseFloat);
+                        frequencias[`vf_${i}`] = data[`vf_${i}`].map(parseFloat);
+                    }
+
+                    return {
+                        temperature: parseFloat(data.MPUtemp[0]),
+                        batteryVoltage: parseFloat(data.mVbatt[0]),
+                        amplitudes: amplitudes,
+                        frequencias: frequencias
+                    };
+                });
+        }
+
+        // FUNÇÃO PARA ATUALIZAR OS GRÁFICOS
+        function updateCharts() {
+            fetchData().then(({ temperature, batteryVoltage, amplitudes, frequencias }) => {
+                const batteryPercentage = (batteryVoltage / maxBatteryVoltage) * 100;
+
+                const traces = [];
+                let maxAmplitude = 0;
+
+                for (let i = 0; i < 10; i++) {
+                    const freq = frequencias[`vf_${i}`];
+                    const amp = amplitudes[`va_${i}`];
+
+                    for (let j = 0; j < freq.length; j++) {
+                        if (amp[j] > maxAmplitude) {
+                            maxAmplitude = amp[j];
+                        }
+
+                        traces.push({
+                            x: [freq[j], freq[j]],
+                            y: [0, amp[j]],
+                            mode: 'lines',
+                            name: `Amplitude ${i}`,
+                            showlegend: false
+                        });
+
+                        traces.push({
+                            x: [freq[j]],
+                            y: [amp[j]],
+                            mode: 'markers',
+                            name: `Amplitude ${i}`,
+                            marker: { size: 8 }
+                        });
+                    }
+                }
+
+                const spectrumLayout = {
+                    xaxis: { title: 'Frequência (Hz)' },
+                    yaxis: { title: 'Magnitude', range: [0, maxAmplitude * 1.1] }
+                };
+
+                Plotly.newPlot('spectrum-plot', traces, spectrumLayout);
+
+                const temperatureGaugeTrace = {
+                    domain: { x: [0, 1], y: [0, 1] },
+                    value: temperature,
+                    title: { text: "Temperatura (°C)" },
+                    type: "indicator",
+                    mode: "gauge+number",
+                    gauge: {
+                        axis: { range: [0, 100] },
+                        steps: [
+                            { range: [0, 20], color: "lightblue" },
+                            { range: [20, 40], color: "blue" },
+                            { range: [40, 60], color: "green" },
+                            { range: [60, 80], color: "yellow" },
+                            { range: [80, 100], color: "red" }
+                        ],
+                        threshold: {
+                            line: { color: "red", width: 4 },
+                            thickness: 0.75,
+                            value: 90
+                        }
+                    }
+                };
+
+                Plotly.newPlot('temperature-gauge-plot', [temperatureGaugeTrace]);
+
+                const batteryGaugeTrace = {
+                    domain: { x: [0, 1], y: [0, 1] },
+                    value: batteryPercentage,
+                    title: { text: "Bateria (%)" },
+                    type: "indicator",
+                    mode: "gauge+number",
+                    gauge: {
+                        axis: { range: [0, 100] },
+                        steps: [
+                            { range: [0, 20], color: "red" },
+                            { range: [20, 40], color: "orange" },
+                            { range: [40, 60], color: "yellow" },
+                            { range: [60, 80], color: "lightgreen" },
+                            { range: [80, 100], color: "green" }
+                        ],
+                        threshold: {
+                            line: { color: "red", width: 4 },
+                            thickness: 0.75,
+                            value: 90
+                        }
+                    }
+                };
+
+                Plotly.newPlot('battery-gauge-plot', [batteryGaugeTrace]);
+            });
+        }
+
+        updateCharts(); // Chama a função updateCharts() para inicializar os gráficos quando a página é carregada
+    </script>
+</body>
+</html>
