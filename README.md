@@ -1,4 +1,4 @@
-FFTTCC_REV5_FINAL = Código utilizado para a validação da biblioteca FFT. Os dados processados por este programa foram validados utilizando o programa MATLABVALIDACAO.m. Este código capta a leitura do acelerômetro MPU 6050 no eixo X, organiza as informações, processando a FFT e retornando os resultados organizando as 10 maiores amplitudes, apresentando estes dados no Serial Monitor. Processamento realizado através do ESP32 DEV MODULE.
+FFTTCC_REV6_FINAL = Código utilizado para a validação da biblioteca FFT. Os dados processados por este programa foram validados utilizando o programa MATLABVALIDACAO.m. Este código capta a leitura do acelerômetro MPU 6050 no eixo X, organiza as informações, processando a FFT e retornando os resultados organizando as 10 maiores amplitudes, apresentando estes dados no Serial Monitor. Processamento realizado através do ESP32 DEV MODULE.
 
 MATLABVALIDACAO.m = Código processa a leitura bruta dos arquivos TXT (300_rpm_valores_brutos, 500_rpm_valores_brutos, 700_rpm_valores_brutos) e apresenta a FFT completa no RANGE entre 0 e 1000Hz,
 possibilitando a comparação entre os resultados do código "FFTTCC_REV7_FINAL" e a FFT completa.
