@@ -9,7 +9,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT MPUtemp, mVbatt, va_0, va_1, va_2, va_3, va_4, va_5, va_6, va_7, va_8, va_9, vf_0, vf_1, vf_2, vf_3, vf_4, vf_5, vf_6, vf_7, vf_8, vf_9 FROM vibracao ORDER BY id DESC LIMIT 4";
+$sql = "SELECT tempMPU, mVbatt, va_0, va_1, va_2, va_3, va_4, va_5, va_6, va_7, va_8, va_9, vf_0, vf_1, vf_2, vf_3, vf_4, vf_5, vf_6, vf_7, vf_8, vf_9 FROM vibracao ORDER BY id DESC LIMIT 4";
 
 // Setar requisição como uma API
 header("Access-Control-Allow-Origin: *");
