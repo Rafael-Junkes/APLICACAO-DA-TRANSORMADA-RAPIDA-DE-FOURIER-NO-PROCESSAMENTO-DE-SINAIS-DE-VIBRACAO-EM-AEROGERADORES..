@@ -4,7 +4,9 @@ Resumo dos arquivos anexados:
 
 FFTTCC_REV6_FINAL = Código utilizado para a validação da biblioteca FFT. Os dados processados por este programa foram validados utilizando o programa MATLABVALIDACAO.m. Este código capta a leitura do acelerômetro MPU 6050 no eixo X, organiza as informações, processando a FFT e retornando os resultados organizando as 10 maiores amplitudes, apresentando estes dados no Serial Monitor. Processamento realizado através do ESP32 DEV MODULE.
 
-PYTHON_VALORES_BRUTOS_TXT.py = Código responsável por realizar os dados provenientes da porta serial e armazenar em um arquivo TXT. Ele armazena 2048 pontos de leitura e exporta na extensão TXT. Foi utilizado para gerar os arquivos utilizados no MATLAB para validação da biblioteca utilizada.
+ARDUINO_ESP32_DADOS_BRUTOS = Código responsável pela leitura do acelerômetro, apresentando os dados lidos no eixo X e plotando os valores no monitor serial do Arduino.IDE. 
+
+PYTHON_VALORES_BRUTOS_TXT = Código em Python responsável por realizar os dados provenientes da porta serial e armazenar em um arquivo TXT. Ele armazena 2048 pontos de leitura provenientes do programa"ARDUINO_ESP32_DADOS_BRUTOS" e exporta na extensão TXT. Foi utilizado para gerar os arquivos utilizados no MATLAB para validação da biblioteca utilizada.
 
 FFT_TCC_DEVICE_LORA_FINAL = Programa final responsável pela execução da FFT e envio dos dados via LORA para o Gateway. O programa inicia com a inclusão das bibliotecas "Wire.h" e "FFT.h". Configura o sensor MPU6050 via I2C, lê aceleração e temperatura, e realiza FFT para analisar frequências. No setup, inicializa comunicações e o sensor. No loop, lê temperatura, executa análise de frequências por intervalos, e envia dados via LoRa ao Wireless Stick Lite(V3). Utiliza "bubbleSort" para ordenar e exibir resultados na serial.
 
